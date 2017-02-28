@@ -8,15 +8,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.hyphenate.EMCallBack;
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.easeui.utils.EaseUserUtils;
+import com.hyphenate.easeui.widget.EaseImageView;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
-import cn.ucai.live.data.model.LiveSettings;
-
+import cn.ucai.live.LiveHelper;
 import cn.ucai.live.R;
-import com.hyphenate.EMCallBack;
-import com.hyphenate.chat.EMClient;
+import cn.ucai.live.data.model.LiveSettings;
+import cn.ucai.live.utils.MFGT;
 
 public class MyProfileFragment extends Fragment {
     Unbinder unbinder;
@@ -24,9 +29,12 @@ public class MyProfileFragment extends Fragment {
     //Spinner spinner;
     //@BindView(R.id.frame_rate)
     //TextView frameRateText;
-    @BindView(R.id.tv_username) TextView usernameView;
+    @BindView(R.id.tv_username)
+    TextView usernameView;
 
     LiveSettings liveSettings;
+    @BindView(R.id.avatar)
+    EaseImageView avatar;
 
     @Nullable
     @Override
@@ -40,11 +48,14 @@ public class MyProfileFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        usernameView.setText(EMClient.getInstance().getCurrentUser());
+        //usernameView.setText(EMClient.getInstance().getCurrentUser());
+        EaseUserUtils.setAppUserAvatar(getContext(),EMClient.getInstance().getCurrentUser(),avatar);
+        EaseUserUtils.setAppUserNick(EMClient.getInstance().getCurrentUser(),usernameView);
+
 
 
         //liveSettings = new LiveSettings(getContext());
-        //final String[] bitrateArr = getResources().getStringArray(R.array.bitrate_types);
+        //final String[] bitrateArr = getResourc es().getStringArray(R.array.bitrate_types);
         //String curBitrate = String.valueOf(liveSettings.getVideoEncodingBitRate());
         //for(int i = 0; i < bitrateArr.length; i++){
         //    if(curBitrate.equals(bitrateArr[i]))
@@ -65,12 +76,14 @@ public class MyProfileFragment extends Fragment {
 
     }
 
-    @OnClick(R.id.btn_logout) void onLogout(){
-        EMClient.getInstance().logout(false, new EMCallBack() {
+    @OnClick(R.id.btn_logout)
+    void onLogout() {
+        LiveHelper.getInstance().logout(false, new EMCallBack() {
             @Override
             public void onSuccess() {
                 getActivity().finish();
-                startActivity(new Intent(getActivity(), LoginActivity.class));
+                MFGT.gotoLoginCleanTask(getActivity());
+                //startActivity(new Intent(getActivity(), LoginActivity.class));
             }
 
             @Override
