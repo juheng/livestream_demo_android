@@ -53,13 +53,17 @@ import cn.ucai.live.data.local.LiveDBManager;
 import cn.ucai.live.data.local.UserDao;
 import cn.ucai.live.data.model.Result;
 import cn.ucai.live.ui.activity.ChatActivity;
+import cn.ucai.live.ui.activity.LoginActivity;
 import cn.ucai.live.ui.activity.MainActivity;
+import cn.ucai.live.utils.L;
+import cn.ucai.live.utils.OkHttpUtils;
 import cn.ucai.live.utils.OnCompleteListener;
 import cn.ucai.live.utils.PreferenceManager;
 import cn.ucai.live.utils.ResultUtils;
 
 
 public class LiveHelper {
+
     /**
      * data sync listener
      */
@@ -1120,6 +1124,30 @@ public class LiveHelper {
 
     public void popActivity(Activity activity) {
         easeUI.popActivity(activity);
+    }
+    public void asyncGetCurrentUserInfo(Activity activity) {
+        NetDao.getUserInfoByUsername(activity, EMClient.getInstance().getCurrentUser(), new OkHttpUtils.OnCompleteListener<String>() {
+            @Override
+            public void onSuccess(String s) {
+                L.e(TAG,"s="+s);
+                if(s!=null){
+                    Result result= ResultUtils.getResultFromJson(s, User.class);
+                    if(result!=null&&result.isRetMsg()){
+                        L.e(TAG,"result======"+result.toString());
+                        User user= (User) result.getRetData();
+                        L.e(TAG,"user======"+user.toString());
+                        LiveHelper.getInstance().saveAppContact(user);
+                        PreferenceManager.getInstance().setCurrentUserAvatar(user.getAvatar());
+                        PreferenceManager.getInstance().setCurrentUserNick(user.getMUserNick());
+                    }
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                L.e(TAG,"error="+error);
+            }
+        });
     }
 
 }

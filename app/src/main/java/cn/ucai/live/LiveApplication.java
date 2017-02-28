@@ -16,6 +16,8 @@ public class LiveApplication extends Application{
     super.onCreate();
     instance = this;
     EaseUI.getInstance().init(this, null);
+    //init demo helper
+   LiveHelper.getInstance().init(instance);
     UEasyStreaming.initStreaming("publish3-key");
   }
 
