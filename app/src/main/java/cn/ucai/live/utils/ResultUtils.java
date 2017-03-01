@@ -5,6 +5,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
@@ -14,6 +15,7 @@ import java.util.List;
 
 import cn.ucai.live.I;
 import cn.ucai.live.data.model.Result;
+
 
 
 /**
@@ -77,6 +79,22 @@ public class ResultUtils {
         }catch (Exception e){
             e.printStackTrace();
         }
+        return  null;
+    }
+
+    public static String getEMResultFromJson(String jsonStr) {
+
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = new JSONObject(jsonStr);
+            JSONObject data=jsonObject.getJSONObject("data");
+            String id=data.getString("id");
+            return id;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
         return  null;
     }
 

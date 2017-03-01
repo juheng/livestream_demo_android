@@ -274,8 +274,14 @@ static class LiveAdapter extends RecyclerView.Adapter<PhotoViewHolder> {
             public void onClick(View v) {
                 final int position = holder.getAdapterPosition();
                 if (position == RecyclerView.NO_POSITION) return;
-                context.startActivity(new Intent(context, LiveDetailsActivity.class)
-                        .putExtra("liveroom", liveRoomList.get(position)));
+                LiveRoom room=liveRoomList.get(position);
+                if(room.getAnchorId()==EMClient.getInstance().getCurrentUser()){
+                    context.startActivity(new Intent(context,StartLiveActivity.class)
+                            .putExtra("liveId",room.getId()));
+                }else {
+                    context.startActivity(new Intent(context, LiveDetailsActivity.class)
+                            .putExtra("liveroom", liveRoomList.get(position)));
+                }
             }
         });
         return holder;

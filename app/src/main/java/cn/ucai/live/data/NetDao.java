@@ -3,12 +3,14 @@ package cn.ucai.live.data;
 import android.content.Context;
 
 import com.hyphenate.chat.EMGroup;
+import com.hyphenate.easeui.domain.User;
 
 import java.io.File;
 
 import cn.ucai.live.I;
 import cn.ucai.live.utils.MD5;
 import cn.ucai.live.utils.OkHttpUtils;
+import cn.ucai.live.utils.OnCompleteListener;
 
 
 /**
@@ -149,6 +151,18 @@ public class NetDao {
         OkHttpUtils<String>utils=new OkHttpUtils<>(context);
         utils.setRequestUrl(I.REQUEST_DELETE_GROUP)
                 .addParam(I.Group.GROUP_ID,groupId)
+                .targetClass(String.class)
+                .execute(listener);
+    }
+    public static void createLive(Context context, User user, OnCompleteListener<String> listener){
+        OkHttpUtils<String>utils=new OkHttpUtils<>(context);
+        utils.setRequestUrl(I.REQUEST_CREATE_CHATROOM)
+                .addParam("auth","1IFgE")
+                .addParam("name",user.getMUserNick()+"的直播")
+                .addParam("description",user.getMUserNick()+"的直播")
+                .addParam("owner",user.getMUserName())
+                .addParam("maxusers","300")
+                .addParam("member",user.getMUserName())
                 .targetClass(String.class)
                 .execute(listener);
     }

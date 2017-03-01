@@ -2,6 +2,7 @@ package cn.ucai.live;
 
 public interface I {
 
+
 	public static interface User {
 		String TABLE_NAME							=		"t_superwechat_user";
 		String USER_NAME 							= 		"m_user_name";					//用户账号
@@ -128,9 +129,10 @@ public interface I {
 	int MSG_LOCATION_GET_FAIL						=		501;							//获取附近的人失败
 	int MSG_UNKNOW									=		999;							//未知错误
 	int MSG_ILLEGAL_REQUEST							=		-1;								//非法请求
+//http://101.251.196.91:8888/SuperWeChatServerV2.0/swagger/index.html
 
-//	String SERVER_ROOT = "http://120.26.242.249:8080/SuperWeChatServerV2.0/";
-	String SERVER_ROOT = "http://101.251.196.90:8000/SuperWeChatServerV2.0/";
+	//	String SERVER_ROOT = "http://120.26.242.249:8080/SuperWeChatServerV2.0/";
+	String SERVER_ROOT = "http://101.251.196.91:8888/SuperWeChatServerV2.0/";
 
 	/** 上传头像图片的类型：user_avatar或group_icon */
 	String AVATAR_TYPE 								= 		"avatarType";
@@ -206,6 +208,8 @@ public interface I {
 	String REQUEST_UPDATE_LOCATION 					= 		"updateLocation";
 	/** 客户端发送的分页下载附近的人的请求 */
 	String REQUEST_DOWNLOAD_LOCATION 				= 		"downloadLocation";
+
+	String REQUEST_CREATE_CHATROOM =                           "live/createChatRoom";
 	 int REQUESTCODE_PICK = 1;
 	 int REQUESTCODE_CUTTING = 2;
 	int REQUESTCODE_MEMORY=3;
