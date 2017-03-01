@@ -47,7 +47,7 @@ import java.util.Random;
 public class LiveListFragment extends Fragment {
 
    // private ProgressBar pb;
-    private ListView listView;
+    //private ListView listView;
 
     private List<EMChatRoom> chatRoomList;
     private boolean isLoading;
@@ -143,7 +143,7 @@ public class LiveListFragment extends Fragment {
                 if (newState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
                     if (pageCount != 0) {
                         int lasPos = gm.findLastVisibleItemPosition();
-                        if (hasMoreData && !isLoading && lasPos == listView.getCount() - 1) {
+                        if (hasMoreData && !isLoading && lasPos == chatRoomList.size() - 1) {
                             loadAndShowData();
                         }
                     }
@@ -170,22 +170,22 @@ public class LiveListFragment extends Fragment {
                             chatRoomList.addAll(chatRooms);
                             if (chatRooms.size() != 0) {
                                 cursor = result.getCursor();
-                                if (chatRooms.size() == pagesize) {
-                                    footLoadingLayout.setVisibility(View.VISIBLE);
-                                }
+//                                if (chatRooms.size() == pagesize) {
+//                                    footLoadingLayout.setVisibility(View.VISIBLE);
+//                                }
                             }
                             if (isFirstLoading) {
                                // pb.setVisibility(View.INVISIBLE);
                                 isFirstLoading = false;
                                 adapter = new LiveAdapter(getContext(), getLiveRoomList(chatRoomList));
-                                //listView.setAdapter(adapter);
+                                recyclerView.setAdapter(adapter);
                                 // rooms.addAll(chatRooms);
                             } else {
                                 if (chatRooms.size() < pagesize) {
                                     hasMoreData = false;
-                                    footLoadingLayout.setVisibility(View.VISIBLE);
-                                    footLoadingPB.setVisibility(View.GONE);
-                                    footLoadingText.setText(getResources().getString(R.string.no_more_messages));
+//                                    footLoadingLayout.setVisibility(View.VISIBLE);
+//                                    footLoadingPB.setVisibility(View.GONE);
+//                                    footLoadingText.setText(getResources().getString(R.string.no_more_messages));
                                 }
                                 adapter.notifyDataSetChanged();
                             }
