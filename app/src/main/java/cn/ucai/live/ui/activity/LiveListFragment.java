@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,15 +17,9 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import cn.ucai.live.data.model.LiveRoom;
-import cn.ucai.live.ui.GridMarginDecoration;
 
 import com.bumptech.glide.Glide;
 import com.hyphenate.EMChatRoomChangeListener;
@@ -33,20 +28,28 @@ import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMCursorResult;
 import com.hyphenate.exceptions.HyphenateException;
 
-import cn.ucai.live.R;
-import cn.ucai.live.data.TestDataRepository;
-import cn.ucai.live.utils.L;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import cn.ucai.live.R;
+import cn.ucai.live.data.model.LiveRoom;
+import cn.ucai.live.ui.GridMarginDecoration;
+import cn.ucai.live.utils.L;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class LiveListFragment extends Fragment {
+    @BindView(R.id.tv_refresh)
+    TextView tvRefresh;
+    @BindView(R.id.recycleview)
+    RecyclerView recycleview;
+    @BindView(R.id.srl)
+    SwipeRefreshLayout srl;
 
-   // private ProgressBar pb;
+    // private ProgressBar pb;
     //private ListView listView;
 
     private List<EMChatRoom> chatRoomList;
@@ -64,7 +67,7 @@ public class LiveListFragment extends Fragment {
     private ImageButton ibClean;
     private List<EMChatRoom> rooms;
 
-    View footView;
+    //View footView;
     LiveAdapter adapter;
     RecyclerView recyclerView;
     GridLayoutManager gm;
@@ -75,6 +78,7 @@ public class LiveListFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_live_list, container, false);
+        ButterKnife.bind(this, view);
         return view;
     }
 
@@ -96,16 +100,22 @@ public class LiveListFragment extends Fragment {
         recyclerView.addItemDecoration(new GridMarginDecoration(6));
         recyclerView.setAdapter(adapter);
 //
-//        footLoadingLayout = (LinearLayout) footView.findViewById(R.id.loading_layout);
-//        footLoadingPB = (ProgressBar)footView.findViewById(R.id.loading_bar);
-//        footLoadingText = (TextView) footView.findViewById(R.id.loading_text);
+        footLoadingLayout = (LinearLayout) getView().findViewById(R.id.loading_layout);
+        footLoadingPB = (ProgressBar)getView().findViewById(R.id.loading_bar);
+        footLoadingText = (TextView) getView().findViewById(R.id.loading_text);
 //        listView.addFooterView(footView, null, false);
-//        footLoadingLayout.setVisibility(View.GONE);
+        footLoadingLayout.setVisibility(View.GONE);
         loadAndShowData();
         setListener();
     }
 
     private void setListener() {
+        setChatRoomChangeListener();
+        setPullUpListener();
+        setPullDownListener();
+    }
+
+    private void setChatRoomChangeListener() {
         EMClient.getInstance().chatroomManager().addChatRoomChangeListener(new EMChatRoomChangeListener() {
             @Override
             public void onChatRoomDestroyed(String s, String s1) {
@@ -127,7 +137,18 @@ public class LiveListFragment extends Fragment {
 
             }
         });
-        setPullUpListener();
+    }
+
+    private void setPullDownListener() {
+        srl.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                srl.setRefreshing(true);
+                tvRefresh.setVisibility(View.VISIBLE);
+                cursor=null;
+               loadAndShowData();
+            }
+        });
     }
 
     private void setPullUpListener() {
@@ -135,6 +156,8 @@ public class LiveListFragment extends Fragment {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
+                int firstPosition=gm.findFirstVisibleItemPosition();
+                srl.setEnabled(firstPosition==0);
             }
 
             @Override
@@ -162,20 +185,22 @@ public class LiveListFragment extends Fragment {
                             .fetchPublicChatRoomsFromServer(pagesize, cursor);
                     //get chat room list
                     final List<EMChatRoom> chatRooms = result.getData();
-                    L.e("LiveListFragment","chatRooms="+chatRooms.size());
+                    L.e("LiveListFragment", "chatRooms=" + chatRooms.size());
                     //pageCount = result.getPageCount();
                     getActivity().runOnUiThread(new Runnable() {
 
                         public void run() {
+                            srl.setRefreshing(false);
+                            tvRefresh.setVisibility(View.GONE);
                             chatRoomList.addAll(chatRooms);
                             if (chatRooms.size() != 0) {
                                 cursor = result.getCursor();
-//                                if (chatRooms.size() == pagesize) {
-//                                    footLoadingLayout.setVisibility(View.VISIBLE);
-//                                }
+                                if (chatRooms.size() == pagesize) {
+                                    footLoadingLayout.setVisibility(View.VISIBLE);
+                                }
                             }
                             if (isFirstLoading) {
-                               // pb.setVisibility(View.INVISIBLE);
+                                // pb.setVisibility(View.INVISIBLE);
                                 isFirstLoading = false;
                                 adapter = new LiveAdapter(getContext(), getLiveRoomList(chatRoomList));
                                 recyclerView.setAdapter(adapter);
@@ -183,9 +208,9 @@ public class LiveListFragment extends Fragment {
                             } else {
                                 if (chatRooms.size() < pagesize) {
                                     hasMoreData = false;
-//                                    footLoadingLayout.setVisibility(View.VISIBLE);
-//                                    footLoadingPB.setVisibility(View.GONE);
-//                                    footLoadingText.setText(getResources().getString(R.string.no_more_messages));
+                                    footLoadingLayout.setVisibility(View.VISIBLE);
+                                    footLoadingPB.setVisibility(View.GONE);
+                                    footLoadingText.setText(getResources().getString(R.string.no_more_messages));
                                 }
                                 adapter.notifyDataSetChanged();
                             }
@@ -196,8 +221,10 @@ public class LiveListFragment extends Fragment {
                     e.printStackTrace();
                     getActivity().runOnUiThread(new Runnable() {
                         public void run() {
+                            srl.setRefreshing(false);
+                            tvRefresh.setVisibility(View.GONE);
                             isLoading = false;
-                           // pb.setVisibility(View.INVISIBLE);
+                            // pb.setVisibility(View.INVISIBLE);
                             footLoadingLayout.setVisibility(View.GONE);
                             Toast.makeText(getContext(), getResources().getString(R.string.failed_to_load_data), Toast.LENGTH_SHORT).show();
                         }
@@ -227,61 +254,61 @@ public class LiveListFragment extends Fragment {
     }
 
 
-    static class LiveAdapter extends RecyclerView.Adapter<PhotoViewHolder> {
+static class LiveAdapter extends RecyclerView.Adapter<PhotoViewHolder> {
 
-        private final List<LiveRoom> liveRoomList;
-        private final Context context;
+    private final List<LiveRoom> liveRoomList;
+    private final Context context;
 
-        public LiveAdapter(Context context, List<LiveRoom> liveRoomList) {
-            this.liveRoomList = liveRoomList;
-            this.context = context;
-        }
-
-        @Override
-        public PhotoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            final PhotoViewHolder holder = new PhotoViewHolder(LayoutInflater.from(context).
-                    inflate(R.layout.layout_livelist_item, parent, false));
-
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    final int position = holder.getAdapterPosition();
-                    if (position == RecyclerView.NO_POSITION) return;
-                    context.startActivity(new Intent(context, LiveDetailsActivity.class)
-                            .putExtra("liveroom", liveRoomList.get(position)));
-                }
-            });
-            return holder;
-        }
-
-        @Override
-        public void onBindViewHolder(PhotoViewHolder holder, int position) {
-            LiveRoom liveRoom = liveRoomList.get(position);
-            holder.anchor.setText(liveRoom.getName());
-            holder.audienceNum.setText(liveRoom.getAudienceNum() + "人");
-            Glide.with(context)
-                    .load(liveRoomList.get(position).getCover())
-                    .placeholder(R.color.placeholder)
-                    .into(holder.imageView);
-        }
-
-        @Override
-        public int getItemCount() {
-            return liveRoomList.size();
-        }
+    public LiveAdapter(Context context, List<LiveRoom> liveRoomList) {
+        this.liveRoomList = liveRoomList;
+        this.context = context;
     }
 
-    static class PhotoViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.photo)
-        ImageView imageView;
-        @BindView(R.id.author)
-        TextView anchor;
-        @BindView(R.id.audience_num)
-        TextView audienceNum;
+    @Override
+    public PhotoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        final PhotoViewHolder holder = new PhotoViewHolder(LayoutInflater.from(context).
+                inflate(R.layout.layout_livelist_item, parent, false));
 
-        public PhotoViewHolder(View itemView) {
-            super(itemView);
-            ButterKnife.bind(this, itemView);
-        }
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final int position = holder.getAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) return;
+                context.startActivity(new Intent(context, LiveDetailsActivity.class)
+                        .putExtra("liveroom", liveRoomList.get(position)));
+            }
+        });
+        return holder;
     }
+
+    @Override
+    public void onBindViewHolder(PhotoViewHolder holder, int position) {
+        LiveRoom liveRoom = liveRoomList.get(position);
+        holder.anchor.setText(liveRoom.getName());
+        holder.audienceNum.setText(liveRoom.getAudienceNum() + "人");
+        Glide.with(context)
+                .load(liveRoomList.get(position).getCover())
+                .placeholder(R.color.placeholder)
+                .into(holder.imageView);
+    }
+
+    @Override
+    public int getItemCount() {
+        return liveRoomList.size();
+    }
+}
+
+static class PhotoViewHolder extends RecyclerView.ViewHolder {
+    @BindView(R.id.photo)
+    ImageView imageView;
+    @BindView(R.id.author)
+    TextView anchor;
+    @BindView(R.id.audience_num)
+    TextView audienceNum;
+
+    public PhotoViewHolder(View itemView) {
+        super(itemView);
+        ButterKnife.bind(this, itemView);
+    }
+}
 }
