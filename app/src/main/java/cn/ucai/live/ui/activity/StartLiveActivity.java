@@ -32,6 +32,8 @@ import com.ucloud.live.UEasyStreaming;
 import com.ucloud.live.UStreamingProfile;
 import com.ucloud.live.widget.UAspectFrameLayout;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -73,6 +75,7 @@ public class StartLiveActivity extends LiveBaseActivity
     @BindView(R.id.img_bt_switch_voice)
     ImageButton voiceSwitch;
 
+
     protected UEasyStreaming mEasyStreaming;
     protected String rtmpPushStreamDomain = "publish3.cdn.ucloud.com.cn";
     public static final int MSG_UPDATE_COUNTDOWN = 1;
@@ -91,6 +94,7 @@ public class StartLiveActivity extends LiveBaseActivity
     ProgressDialog pd;
 
     boolean isStarted;
+    long startTime;
 
     private Handler handler = new Handler() {
         @Override
@@ -111,12 +115,12 @@ public class StartLiveActivity extends LiveBaseActivity
 
         EaseUserUtils.setAppUserAvatar(StartLiveActivity.this, EMClient.getInstance().getCurrentUser(), avatar);
         EaseUserUtils.setAppUserNick(EMClient.getInstance().getCurrentUser(), usernameView);
-        String id=getIntent().getStringExtra("id");
-        if(id!=null&&!id.equals("")){
-            liveId=id;
-            chatroomId=id;
-        }else{
-            liveId=EMClient.getInstance().getCurrentUser();
+        String id = getIntent().getStringExtra("id");
+        if (id != null && !id.equals("")) {
+            liveId = id;
+            chatroomId = id;
+        } else {
+            liveId = EMClient.getInstance().getCurrentUser();
 //            pd = new ProgressDialog(StartLiveActivity.this);
 //            pd.setMessage("创建直播...");
 //            pd.show();
@@ -128,7 +132,6 @@ public class StartLiveActivity extends LiveBaseActivity
 //        anchorId = EMClient.getInstance().getCurrentUser();
 //        usernameView.setText(anchorId);
         initEnv();
-
 
 
     }
@@ -170,6 +173,7 @@ public class StartLiveActivity extends LiveBaseActivity
                 Toast.makeText(this, event.toString(), Toast.LENGTH_LONG).show();
                 break;
             case UEasyStreaming.State.START_RECORDING:
+                startTime = System.currentTimeMillis();
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -216,9 +220,9 @@ public class StartLiveActivity extends LiveBaseActivity
      */
     @OnClick(R.id.btn_start)
     void startLive() {
-        L.e("StartLive","liveId="+liveId+",chatRoomId="+chatroomId);
+        L.e("StartLive", "liveId=" + liveId + ",chatRoomId=" + chatroomId);
         //demo为了测试方便，只有指定的账号才能开启直播
-        if (chatroomId==null || chatroomId.equals("")) {
+        if (chatroomId == null || chatroomId.equals("")) {
             pd = new ProgressDialog(StartLiveActivity.this);
             pd.setMessage("创建直播...");
             pd.show();
@@ -266,12 +270,12 @@ public class StartLiveActivity extends LiveBaseActivity
                     boolean success = false;
                     pd.dismiss();
                     if (s != null) {
-                        L.e("StartLive","s="+s);
+                        L.e("StartLive", "s=" + s);
                         String id = ResultUtils.getEMResultFromJson(s);
-                        if (id != null ) {
+                        if (id != null) {
                             success = true;
                             chatroomId = id;
-                           // startLiveByChatRoom();
+                            // startLiveByChatRoom();
 
                         }
                     }
@@ -307,16 +311,21 @@ public class StartLiveActivity extends LiveBaseActivity
             finish();
             return;
         }
+        long endTime = System.currentTimeMillis();
+        long time = endTime - startTime - 8 * 60 * 60 * 1000;
+        SimpleDateFormat format = new SimpleDateFormat("HH:MM:SS");
+        String t = format.format(new Date(time));
+
         deleteLive();
-        showConfirmCloseLayout();
+        showConfirmCloseLayout(t);
     }
 
     private void deleteLive() {
         NetDao.removeLive(StartLiveActivity.this, chatroomId, new OnCompleteListener<String>() {
             @Override
             public void onSuccess(String s) {
-                if(s!=null){
-                    L.e("StartLive","RemoveLive,s="+s);
+                if (s != null) {
+                    L.e("StartLive", "RemoveLive,s=" + s);
                 }
 
             }
@@ -340,11 +349,11 @@ public class StartLiveActivity extends LiveBaseActivity
         }
     }
 
-    private void showConfirmCloseLayout() {
+    private void showConfirmCloseLayout(String time) {
         //显示封面
         coverImage.setVisibility(View.VISIBLE);
-      //  List<LiveRoom> liveRoomList = TestDataRepository.getLiveRoomList();
-        EaseUserUtils.setAppUserAvatar(this,EMClient.getInstance().getCurrentUser(),coverImage);
+        //  List<LiveRoom> liveRoomList = TestDataRepository.getLiveRoomList();
+        EaseUserUtils.setAppUserAvatar(this, EMClient.getInstance().getCurrentUser(), coverImage);
 //        for (LiveRoom liveRoom : liveRoomList) {
 //            if (liveRoom.getId().equals(liveId)) {
 //
@@ -353,8 +362,14 @@ public class StartLiveActivity extends LiveBaseActivity
 //        }
         View view = liveEndLayout.inflate();
         Button closeConfirmBtn = (Button) view.findViewById(R.id.live_close_confirm);
-        TextView usernameView = (TextView) view.findViewById(R.id.tv_username);
-        usernameView.setText(EMClient.getInstance().getCurrentUser());
+//        TextView usernameView = (TextView) view.findViewById(R.id.tv_username);
+//        usernameView.setText(EMClient.getInstance().getCurrentUser());
+        EaseImageView finishAvatar = (EaseImageView) view.findViewById(R.id.finish_avatar);
+        TextView finishName = (TextView) view.findViewById(R.id.finish_username);
+        TextView showTime = (TextView) view.findViewById(R.id.show_time);
+        EaseUserUtils.setAppUserAvatar(this, EMClient.getInstance().getCurrentUser(), finishAvatar);
+        EaseUserUtils.setAppUserNick(EMClient.getInstance().getCurrentUser(), finishName);
+        showTime.setText(time);
         closeConfirmBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
