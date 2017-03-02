@@ -89,7 +89,7 @@ public class LiveListFragment extends Fragment {
 
         chatRoomList = new ArrayList<EMChatRoom>();
         rooms = new ArrayList<EMChatRoom>();
-        adapter = new LiveAdapter(getContext(), getLiveRoomList(chatRoomList));
+       // adapter = new LiveAdapter(getContext(), getLiveRoomList(chatRoomList));
 
 
         recyclerView = (RecyclerView) getView().findViewById(R.id.recycleview);
@@ -99,7 +99,7 @@ public class LiveListFragment extends Fragment {
         recyclerView.setLayoutManager(gm);
         recyclerView.setHasFixedSize(true);
         recyclerView.addItemDecoration(new GridMarginDecoration(6));
-        recyclerView.setAdapter(adapter);
+      //  recyclerView.setAdapter(adapter);
 //
         footLoadingLayout = (LinearLayout) getView().findViewById(R.id.loading_layout);
         footLoadingPB = (ProgressBar)getView().findViewById(R.id.loading_bar);
@@ -147,6 +147,8 @@ public class LiveListFragment extends Fragment {
                 srl.setRefreshing(true);
                 tvRefresh.setVisibility(View.VISIBLE);
                 cursor=null;
+                isFirstLoading=true;
+                chatRoomList.clear();
                loadAndShowData();
             }
         });
@@ -211,7 +213,7 @@ public class LiveListFragment extends Fragment {
                                     hasMoreData = false;
                                     footLoadingLayout.setVisibility(View.VISIBLE);
                                     footLoadingPB.setVisibility(View.GONE);
-                                    footLoadingText.setText(getResources().getString(R.string.no_more_messages));
+                                    footLoadingText.setText("没有更多数据");
                                 }
                                 adapter.notifyDataSetChanged();
                             }
@@ -278,7 +280,7 @@ static class LiveAdapter extends RecyclerView.Adapter<PhotoViewHolder> {
                 LiveRoom room=liveRoomList.get(position);
                 if(room.getAnchorId()==EMClient.getInstance().getCurrentUser()){
                     context.startActivity(new Intent(context,StartLiveActivity.class)
-                            .putExtra("liveId",room.getId()));
+                            .putExtra("id",room.getId()));
                 }else {
                     context.startActivity(new Intent(context, LiveDetailsActivity.class)
                             .putExtra("liveroom", liveRoomList.get(position)));

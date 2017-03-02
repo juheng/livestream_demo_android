@@ -3,6 +3,7 @@ package cn.ucai.live;
 public interface I {
 
 
+
 	public static interface User {
 		String TABLE_NAME							=		"t_superwechat_user";
 		String USER_NAME 							= 		"m_user_name";					//用户账号
@@ -210,6 +211,7 @@ public interface I {
 	String REQUEST_DOWNLOAD_LOCATION 				= 		"downloadLocation";
 
 	String REQUEST_CREATE_CHATROOM =                           "live/createChatRoom";
+	String REQUEST_DELETE_CHATROOM ="live/deleteChatRoom" ;
 	 int REQUESTCODE_PICK = 1;
 	 int REQUESTCODE_CUTTING = 2;
 	int REQUESTCODE_MEMORY=3;
