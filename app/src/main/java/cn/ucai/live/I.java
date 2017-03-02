@@ -212,6 +212,7 @@ public interface I {
 
 	String REQUEST_CREATE_CHATROOM =                           "live/createChatRoom";
 	String REQUEST_DELETE_CHATROOM ="live/deleteChatRoom" ;
+	String REQUEST_GIVING_GIFT ="live/givingGifts";
 	 int REQUESTCODE_PICK = 1;
 	 int REQUESTCODE_CUTTING = 2;
 	int REQUESTCODE_MEMORY=3;

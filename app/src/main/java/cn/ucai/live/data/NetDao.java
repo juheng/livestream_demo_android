@@ -174,5 +174,11 @@ public class NetDao {
                 .targetClass(String.class)
                 .execute(listener);
     }
+    public static void getAllGifts(Context context, OnCompleteListener<String> listener){
+        OkHttpUtils<String>utils=new OkHttpUtils<>(context);
+        utils.setRequestUrl(I.REQUEST_GIVING_GIFT)
+                .targetClass(String.class)
+                .execute(listener);
+    }
 
 }

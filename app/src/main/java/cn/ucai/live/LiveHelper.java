@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.CursorJoiner;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -51,6 +52,7 @@ import java.util.UUID;
 import cn.ucai.live.data.NetDao;
 import cn.ucai.live.data.local.LiveDBManager;
 import cn.ucai.live.data.local.UserDao;
+import cn.ucai.live.data.model.Gift;
 import cn.ucai.live.data.model.Result;
 import cn.ucai.live.ui.activity.ChatActivity;
 import cn.ucai.live.ui.activity.LoginActivity;
@@ -87,6 +89,7 @@ public class LiveHelper {
 	private Map<String, EaseUser> contactList;
 
 	private Map<String, User> appContactList;
+	private Map<Integer, Gift> appGiftList;
 
 
 	private static LiveHelper instance = null;
@@ -168,38 +171,34 @@ public class LiveHelper {
             setGlobalListeners();
 			broadcastManager = LocalBroadcastManager.getInstance(appContext);
 	        initDbDao();
+            initGiftList();
 		}
 	}
 
+    private void initGiftList() {
+        NetDao.getAllGifts(appContext, new OnCompleteListener<String>() {
+            @Override
+            public void onSuccess(String s) {
+                if(s!=null){
+                    Result result=ResultUtils.getListResultFromJson(s,Gift.class);
+                    if(result!=null){
+                        List<Gift>list= (List<Gift>) result;
+                        LiveModel.saveAppGiftList(list);
+                    }
+                }
 
-	private EMOptions initChatOptions(){
-        Log.d(TAG, "init HuanXin Options");
+            }
 
-        EMOptions options = new EMOptions();
-        // set if accept the invitation automatically
-        options.setAcceptInvitationAlways(false);
-        // set if you need read ack
-        options.setRequireAck(true);
-        // set if you need delivery ack
-        options.setRequireDeliveryAck(false);
+            @Override
+            public void onError(String error) {
 
-        //you need apply & set your own id if you want to use google cloud messaging.
-        options.setGCMNumber("324169311137");
-        //you need apply & set your own id if you want to use Mi push notification
-        options.setMipushConfig("2882303761517426801", "5381742660801");
-        //you need apply & set your own id if you want to use Huawei push notification
-        options.setHuaweiPushAppId("10492024");
+            }
+        });
+    }
 
 
-        if (LiveModel.isCustomAppkeyEnabled() && LiveModel.getCutomAppkey() != null && !LiveModel.getCutomAppkey().isEmpty()) {
-            options.setAppKey(LiveModel.getCutomAppkey());
-        }
-
-        options.allowChatroomOwnerLeave(getModel().isChatroomOwnerLeaveAllowed());
-        options.setDeleteMessagesAsExitGroup(getModel().isDeleteMessagesAsExitGroup());
-        options.setAutoAcceptGroupInvitation(getModel().isAutoAcceptGroupInvitation());
-
-        return options;
+    private EMOptions initChatOptions() {
+        return null;
     }
 
     protected void setEaseUIProviders() {
@@ -1149,5 +1148,39 @@ public class LiveHelper {
             }
         });
     }
+    /**
+     * update gift list
+     *
+     * @param list
+     */
+    public void setAppGiftList(Map<Integer, Gift> list) {
+        if(list == null){
 
+            if (appGiftList != null) {
+                appGiftList.clear();
+            }
+            return;
+        }
+
+        appGiftList = list;
+    }
+
+
+    /**
+     * get gift list
+     *
+     * @return
+     */
+    public Map<Integer, Gift> getAppGiftList() {
+        if (appGiftList == null && appGiftList.size()!=0) {
+            appGiftList = LiveModel.getAppGiftList();
+        }
+
+        // return a empty non-null object to avoid app crash
+        if(appGiftList == null){
+            return new Hashtable<Integer, Gift>();
+        }
+
+        return appGiftList;
+    }
 }
