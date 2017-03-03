@@ -278,6 +278,7 @@ static class LiveAdapter extends RecyclerView.Adapter<PhotoViewHolder> {
                 final int position = holder.getAdapterPosition();
                 if (position == RecyclerView.NO_POSITION) return;
                 LiveRoom room=liveRoomList.get(position);
+                L.e("ListLive","id="+room.getId()+",chatroomId="+room.getChatroomId()+"AnchId="+room.getAnchorId());
                 if(room.getAnchorId()==EMClient.getInstance().getCurrentUser()){
                     context.startActivity(new Intent(context,StartLiveActivity.class)
                             .putExtra("id",room.getId()));

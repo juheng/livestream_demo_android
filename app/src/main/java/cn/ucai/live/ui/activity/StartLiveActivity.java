@@ -220,13 +220,13 @@ public class StartLiveActivity extends LiveBaseActivity
      */
     @OnClick(R.id.btn_start)
     void startLive() {
-        L.e("StartLive", "liveId=" + liveId + ",chatRoomId=" + chatroomId);
         //demo为了测试方便，只有指定的账号才能开启直播
         if (chatroomId == null || chatroomId.equals("")) {
             pd = new ProgressDialog(StartLiveActivity.this);
             pd.setMessage("创建直播...");
             pd.show();
             createLive();
+            startLiveByChatRoom();
 //            String[] anchorIds = TestDataRepository.anchorIds;
 //            StringBuilder sb = new StringBuilder();
 //            for (int i = 0; i < anchorIds.length; i++) {
@@ -234,7 +234,6 @@ public class StartLiveActivity extends LiveBaseActivity
 //                if (i != (anchorIds.length - 1)) sb.append(",");
 //            }
 //            new EaseAlertDialog(this, "demo中只有" + sb.toString() + "这几个账户才能开启直播").show();
-            return;
         }
         startLiveByChatRoom();
     }
@@ -275,7 +274,7 @@ public class StartLiveActivity extends LiveBaseActivity
                         if (id != null) {
                             success = true;
                             chatroomId = id;
-                            // startLiveByChatRoom();
+                            //startLiveByChatRoom();
 
                         }
                     }
@@ -313,7 +312,7 @@ public class StartLiveActivity extends LiveBaseActivity
         }
         long endTime = System.currentTimeMillis();
         long time = endTime - startTime - 8 * 60 * 60 * 1000;
-        SimpleDateFormat format = new SimpleDateFormat("HH:MM:SS");
+        SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
         String t = format.format(new Date(time));
 
         deleteLive();
