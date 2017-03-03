@@ -99,14 +99,10 @@ public class RoomGiftListDialog extends DialogFragment {
     }
 
 
-    private UserDetailsDialogListener dialogListener;
+    private View.OnClickListener mListener;
 
-    public void setUserDetailsDialogListener(UserDetailsDialogListener dialogListener) {
-        this.dialogListener = dialogListener;
-    }
-
-    interface UserDetailsDialogListener {
-        void onMentionClick(String username);
+    public void setGiftOnClickListener(View.OnClickListener listener) {
+        this.mListener = listener;
     }
 
 
@@ -180,6 +176,7 @@ public class RoomGiftListDialog extends DialogFragment {
             GiftViewHolder(View view) {
                 super(view);
                 ButterKnife.bind(this, view);
+                layoutGift.setOnClickListener(mListener);
             }
         }
     }
