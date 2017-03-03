@@ -181,9 +181,19 @@ public class LiveHelper {
             public void onSuccess(String s) {
                 if(s!=null){
                     Result result=ResultUtils.getListResultFromJson(s,Gift.class);
-                    if(result!=null){
-                        List<Gift>list= (List<Gift>) result;
-                        LiveModel.saveAppGiftList(list);
+                    if(result!=null &&result.isRetMsg()){
+                        List<Gift>list= (List<Gift>) result.getRetData();
+                        if(list!=null && list.size()>0){
+                            Map<Integer,Gift>giftList=new HashMap<Integer, Gift>();
+                            for(Gift gift:list){
+                                giftList.put(gift.getId(),gift);
+                            }
+                            getAppGiftList().clear();
+                            getAppGiftList().putAll(giftList);
+                            UserDao dao=new UserDao(appContext);
+                            List<Gift>gifts=new ArrayList<Gift>(giftList.values());
+                            dao.saveAppGiftList(gifts);
+                        }
                     }
                 }
 
@@ -1172,7 +1182,7 @@ public class LiveHelper {
      * @return
      */
     public Map<Integer, Gift> getAppGiftList() {
-        if (appGiftList == null && appGiftList.size()!=0) {
+        if (appGiftList == null || appGiftList.size()==0) {
             appGiftList = LiveModel.getAppGiftList();
         }
 

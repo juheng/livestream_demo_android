@@ -3,6 +3,7 @@ package cn.ucai.live;
 public interface I {
 
 
+	String GIFT_TYPE = "cn.ucai.live.gift";
 
 	public static interface User {
 		String TABLE_NAME							=		"t_superwechat_user";
@@ -212,8 +213,9 @@ public interface I {
 
 	String REQUEST_CREATE_CHATROOM =                           "live/createChatRoom";
 	String REQUEST_DELETE_CHATROOM ="live/deleteChatRoom" ;
-	String REQUEST_GIVING_GIFT ="live/givingGifts";
+	String REQUEST_GET_GIFT ="live/getAllGifts";
 	 int REQUESTCODE_PICK = 1;
 	 int REQUESTCODE_CUTTING = 2;
 	int REQUESTCODE_MEMORY=3;
+	int GIFT_COLUMN_COUNT =4;
 }
