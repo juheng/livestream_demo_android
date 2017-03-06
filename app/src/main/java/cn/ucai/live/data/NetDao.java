@@ -180,5 +180,22 @@ public class NetDao {
                 .targetClass(String.class)
                 .execute(listener);
     }
+    public static void loadChange(Context context,String username, OnCompleteListener<String> listener){
+        OkHttpUtils<String>utils=new OkHttpUtils<>(context);
+        utils.setRequestUrl(I.REQUEST_LOAD_CHANGE)
+                .addParam("uname",username)
+                .targetClass(String.class)
+                .execute(listener);
+    }
+    public static void giveGift(Context context,String username,String anchor,int giftId,int count, OnCompleteListener<String> listener){
+        OkHttpUtils<String>utils=new OkHttpUtils<>(context);
+        utils.setRequestUrl(I.REQUEST_GIVING_GIFT)
+                .addParam("uname",username)
+                .addParam("anchor",anchor)
+                .addParam("giftId",String.valueOf(giftId))
+                .addParam("giftNum",String.valueOf(count))
+                .targetClass(String.class)
+                .execute(listener);
+    }
 
 }

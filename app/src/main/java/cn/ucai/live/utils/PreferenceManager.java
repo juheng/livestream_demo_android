@@ -31,6 +31,7 @@ public class PreferenceManager {
 	private String SHARED_KEY_SETTING_VIBRATE = "shared_key_setting_vibrate";
 	private String SHARED_KEY_SETTING_SPEAKER = "shared_key_setting_speaker";
 
+
 	private static String SHARED_KEY_SETTING_CHATROOM_OWNER_LEAVE = "shared_key_setting_chatroom_owner_leave";
     private static String SHARED_KEY_SETTING_DELETE_MESSAGES_WHEN_EXIT_GROUP = "shared_key_setting_delete_messages_when_exit_group";
     private static String SHARED_KEY_SETTING_AUTO_ACCEPT_GROUP_INVITATION = "shared_key_setting_auto_accept_group_invitation";
@@ -44,6 +45,7 @@ public class PreferenceManager {
 	private static String SHARED_KEY_CURRENTUSER_USERNAME = "SHARED_KEY_CURRENTUSER_USERNAME";
 	private static String SHARED_KEY_CURRENTUSER_NICK = "SHARED_KEY_CURRENTUSER_NICK";
 	private static String SHARED_KEY_CURRENTUSER_AVATAR = "SHARED_KEY_CURRENTUSER_AVATAR";
+	private static final String SHARED_KEY_CURRENTUSER_CHANGE = "SHARED_KEY_CURRENTUSER_CHANGE";
 	private static String SHARED_KEY_PAYMENT_TIP = "SHARED_KEY_PAYMENT_TIP";
 
 	private static String SHARED_KEY_REST_SERVER = "SHARED_KEY_REST_SERVER";
@@ -208,7 +210,13 @@ public class PreferenceManager {
 		editor.putBoolean(SHARED_KEY_PAYMENT_TIP, tip);
 		editor.apply();
 	}
-
+	public void setUserChange(int change) {
+		editor.putInt(SHARED_KEY_CURRENTUSER_CHANGE, change);
+		editor.apply();
+	}
+	public int getUserChange() {
+		return mSharedPreferences.getInt(SHARED_KEY_CURRENTUSER_CHANGE,0);
+	}
 	public boolean getPayMentTip() {
 		return mSharedPreferences.getBoolean(SHARED_KEY_PAYMENT_TIP, false);
 	}
@@ -278,6 +286,7 @@ public class PreferenceManager {
 		editor.remove(SHARED_KEY_CURRENTUSER_NICK);
 		editor.remove(SHARED_KEY_CURRENTUSER_AVATAR);
 		editor.remove(SHARED_KEY_PAYMENT_TIP);
+		editor.remove(SHARED_KEY_CURRENTUSER_CHANGE);
 		editor.apply();
 	}
 

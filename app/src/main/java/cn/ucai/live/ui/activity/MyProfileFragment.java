@@ -1,6 +1,5 @@
 package cn.ucai.live.ui.activity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -49,9 +48,8 @@ public class MyProfileFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         //usernameView.setText(EMClient.getInstance().getCurrentUser());
-        EaseUserUtils.setAppUserAvatar(getContext(),EMClient.getInstance().getCurrentUser(),avatar);
-        EaseUserUtils.setAppUserNick(EMClient.getInstance().getCurrentUser(),usernameView);
-
+        EaseUserUtils.setAppUserAvatar(getContext(), EMClient.getInstance().getCurrentUser(), avatar);
+        EaseUserUtils.setAppUserNick(EMClient.getInstance().getCurrentUser(), usernameView);
 
 
         //liveSettings = new LiveSettings(getContext());
@@ -119,5 +117,10 @@ public class MyProfileFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
+    }
+
+    @OnClick(R.id.layout_change)
+    public void onClick() {
+        MFGT.gotoChangeActivity(getActivity());
     }
 }

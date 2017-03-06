@@ -88,7 +88,6 @@ public class RoomGiftListDialog extends DialogFragment {
 //            L.e("RoomGiftListDialog","value====="+value);
             list.add(iterator.next().getValue());
         }
-        L.e("RoomGiftListDialog","list======"+list.size());
 //        Collections.sort(list, new Comparator<Gift>() {
 //            @Override
 //            public int compare(Gift lhs, Gift rhs) {
